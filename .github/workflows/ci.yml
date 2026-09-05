@@ -84,37 +84,38 @@ jobs:
       - name: Install dependencies (frozen lockfile)
         run: pnpm install --frozen-lockfile
 
+      - name: Install Playwright browsers (${{ matrix.browser }})
+        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+
       - name: Run P0 regression suite (${{ matrix.browser }})
         run: pnpm --filter playwright run test:${{ matrix.browser }} -- playwright/tests/p0-regression.spec.ts
         env:
           CI: true
       
-      - name: Diagnose webServer failure (if tests couldn't start)
+      - name: Diagnose CI environment and failures
         if: failure()
         run: |
-          echo "=== WebServer Diagnostics ==="
+          echo "=== CI Environment Diagnostics ==="
           echo "Browser: ${{ matrix.browser }}"
           echo ""
-          echo "=== Checking if Storybook is accessible ==="
-          curl -v http://localhost:6006 2>&1 || echo "Storybook not reachable"
+          echo "=== Playwright Version & Browser Status ==="
+          pnpm exec playwright --version || echo "Playwright CLI not available"
           echo ""
-          echo "=== Checking Playwright test results ==="
-          if [ -d playwright/test-results ]; then
-            echo "Test results exist:"
-            ls -la playwright/test-results/
-            if [ -f playwright/test-results/junit.xml ]; then
-              echo ""
-              echo "JUnit XML content (first 50 lines):"
-              head -50 playwright/test-results/junit.xml
-            fi
+          echo "=== Browser Binary Check ==="
+          ls -la ~/.cache/ms-playwright/ 2>/dev/null || echo "No browser cache found"
+          echo ""
+          echo "=== Storybook Server Diagnostics ==="
+          curl -v http://localhost:6006 2>&1 | head -20 || echo "Storybook not reachable on port 6006"
+          echo ""
+          echo "=== P0 Regression Test Results ==="
+          if [ -f playwright/test-results/junit.xml ]; then
+            echo "JUnit XML exists. Test count:"
+            grep -o 'tests="[0-9]*"' playwright/test-results/junit.xml || echo "Could not parse test count"
+            echo ""
+            echo "First error (if any):"
+            head -30 playwright/test-results/junit.xml
           else
-            echo "No test results directory found"
-          fi
-          echo ""
-          echo "=== Checking for Playwright report ==="
-          if [ -d playwright/playwright-report ]; then
-            echo "Playwright report exists"
-            ls -la playwright/playwright-report/ | head -10
+            echo "No JUnit results found"
           fi
 
       - name: Upload test results
@@ -158,7 +159,7 @@ jobs:
         run: bash scripts/ci-security-check.sh
 
       - name: Dependency audit (advisory-only, non-blocking)
-        run: pnpm audit --no-exit-code
+        run: pnpm audit
         continue-on-error: true
 
   # Summary status check
