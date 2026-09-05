@@ -43,10 +43,10 @@ export default defineConfig({
   // (no Vite lazy-compile) eliminates the "sb-show-preparing-story" render
   // races that made the dev server flaky under full-suite parallel load.
   webServer: {
-    command: 'pnpm --filter storybook run build && pnpm --filter storybook exec http-server storybook-static -p 6006 -s',
+    command: 'pnpm --filter storybook run build && pnpm --filter storybook exec http-server ../storybook/storybook-static -p 6006 -s',
     url: 'http://localhost:6006',
     reuseExistingServer: !process.env.CI,
     timeout: 240 * 1000,
-    cwd: '..',
+    cwd: '.',
   },
 });

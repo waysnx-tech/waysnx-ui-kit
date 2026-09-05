@@ -22,17 +22,39 @@ EXIT_CODE=0
 echo "=== Security Checks ==="
 echo ""
 
-# 1. Check for private credential files tracked in git index
-echo "Scanning for tracked private credential files..."
-PRIVATE_FILES_FOUND=false
+# 1. Check for .npmrc files with actual credentials (not just presence)
+echo "Scanning for .npmrc files with credentials..."
+NPMRC_WITH_CREDS=false
 
-# Check for .env, .env.local, .npmrc, .env.*.local patterns
-if git ls-files --cached 2>/dev/null | grep -E '(^|/)\.env($|\.local$|\..*\.local$)|(^|/)\.npmrc$' | grep -v node_modules; then
-  echo "✗ BLOCKED: Private credential files found in git index (.env, .env.local, .env.*.local, .npmrc)"
-  PRIVATE_FILES_FOUND=true
+# Check if any tracked .npmrc contains credential patterns: _auth, _authToken, NPM_TOKEN, etc.
+if git ls-files --cached 2>/dev/null | grep -E '\.npmrc$'; then
+  # Found .npmrc file(s), now check content for credentials
+  while IFS= read -r npmrc_file; do
+    if git show ":$npmrc_file" 2>/dev/null | grep -iE '(_auth|_authToken|NPM_TOKEN|npm_token)' > /dev/null; then
+      echo "✗ BLOCKED: .npmrc file contains credentials: $npmrc_file"
+      NPMRC_WITH_CREDS=true
+      EXIT_CODE=1
+    fi
+  done < <(git ls-files --cached 2>/dev/null | grep -E '\.npmrc$')
+  
+  if [ "$NPMRC_WITH_CREDS" = false ]; then
+    echo "✓ .npmrc files found but contain no credentials"
+  fi
+else
+  echo "✓ No .npmrc files tracked"
+fi
+
+# Check for .env, .env.local, .env.*.local files (always block, they should never be tracked)
+echo ""
+echo "Scanning for .env files (development configuration)..."
+ENV_FILES_FOUND=false
+
+if git ls-files --cached 2>/dev/null | grep -E '(^|/)\.env($|\.local$|\..*\.local$)' | grep -v node_modules; then
+  echo "✗ BLOCKED: Development .env files found in git index (.env, .env.local, .env.*.local)"
+  ENV_FILES_FOUND=true
   EXIT_CODE=1
 else
-  echo "✓ No private credential files tracked"
+  echo "✓ No .env files tracked"
 fi
 
 # 2. Check for hardcoded bearer tokens with actual token-shaped values

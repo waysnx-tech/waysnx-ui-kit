@@ -88,6 +88,31 @@ jobs:
         run: pnpm --filter playwright run test:${{ matrix.browser }} -- playwright/tests/p0-regression.spec.ts
         env:
           CI: true
+      
+      - name: Diagnose test failures (if any)
+        if: failure()
+        run: |
+          echo "=== Playwright Diagnostic Report ==="
+          echo "Browser: ${{ matrix.browser }}"
+          echo "Test command: pnpm --filter playwright run test:${{ matrix.browser }} -- playwright/tests/p0-regression.spec.ts"
+          echo ""
+          echo "=== Checking webServer startup logs ==="
+          if [ -d playwright-report ]; then
+            echo "Playwright report directory exists"
+            ls -la playwright-report/
+          else
+            echo "No playwright-report directory found"
+          fi
+          echo ""
+          echo "=== Checking test results ==="
+          if [ -d playwright/test-results ]; then
+            echo "Test results directory:"
+            ls -la playwright/test-results/
+            if [ -f playwright/test-results/junit.xml ]; then
+              echo "JUnit XML content:"
+              head -30 playwright/test-results/junit.xml
+            fi
+          fi
 
       - name: Upload test results
         if: always()
