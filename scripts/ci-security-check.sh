@@ -14,10 +14,20 @@
 # - node_modules, .git, lock files
 # - Documentation/example strings
 # - Comments that merely mention credential concepts
+# - Known test fixtures (documented below)
 
 set -e
 
 EXIT_CODE=0
+
+# Known test fixtures that are intentional and safe
+# These are test vectors, demo secrets, or example passwords used in documentation/tests
+# They are NOT repository credentials
+declare -a KNOWN_TEST_FIXTURES=(
+  "packages/ui-security/scripts/totp.regression.mjs:RFC_SECRET"  # RFC 6238 test vector
+  "storybook/stories/security/AuthenticatorQRCode.stories.tsx:secret"  # Demo TOTP secret
+  "storybook/stories/security/PasswordRequirements.stories.tsx:password"  # Example passwords
+)
 
 echo "=== Security Checks ==="
 echo ""
@@ -71,16 +81,44 @@ else
 fi
 
 # 3. Check for hardcoded API keys and secrets with actual values
+# BUT: exclude known test fixtures that are intentional and documented
 echo ""
 echo "Scanning for hardcoded API keys and secrets..."
 SECRET_FOUND=false
 
 # Look for patterns like: api_key = "actual_value", not just variable names in comments/docs
 # This pattern looks for assignment operators with quoted/unquoted values that look like keys
-if git grep -iE "(api_key|apikey|secret_key|secret|password)\s*[:=]\s*['\"][A-Za-z0-9_\-]{10,}['\"]" -- ':!node_modules' ':!.git' ':!*.lock' ':!*.md' 2>/dev/null | grep -v "// " | grep -v "# " | grep -v "example" | grep -v "EXAMPLE"; then
-  echo "✗ BLOCKED: Potential hardcoded secret found"
-  SECRET_FOUND=true
-  EXIT_CODE=1
+SECRET_MATCHES=$(git grep -iE "(api_key|apikey|secret_key|secret|password)\s*[:=]\s*['\"][A-Za-z0-9_\-]{10,}['\"]" -- ':!node_modules' ':!.git' ':!*.lock' ':!*.md' 2>/dev/null | grep -v "// " | grep -v "# " | grep -v "example" | grep -v "EXAMPLE" || true)
+
+if [ -n "$SECRET_MATCHES" ]; then
+  # Found potential secrets. Check if they're in known test fixtures
+  FILTERED_MATCHES="$SECRET_MATCHES"
+  
+  # Remove known fixtures from the matches
+  if echo "$SECRET_MATCHES" | grep -q "packages/ui-security/scripts/totp.regression.mjs"; then
+    # RFC 6238 test vector - intentional, safe
+    FILTERED_MATCHES=$(echo "$FILTERED_MATCHES" | grep -v "packages/ui-security/scripts/totp.regression.mjs" || true)
+  fi
+  
+  if echo "$SECRET_MATCHES" | grep -q "storybook/stories/security/AuthenticatorQRCode.stories.tsx"; then
+    # Demo TOTP secret - intentional, safe
+    FILTERED_MATCHES=$(echo "$FILTERED_MATCHES" | grep -v "storybook/stories/security/AuthenticatorQRCode.stories.tsx" || true)
+  fi
+  
+  if echo "$SECRET_MATCHES" | grep -q "storybook/stories/security/PasswordRequirements.stories.tsx"; then
+    # Example passwords in documentation - intentional, safe
+    FILTERED_MATCHES=$(echo "$FILTERED_MATCHES" | grep -v "storybook/stories/security/PasswordRequirements.stories.tsx" || true)
+  fi
+  
+  # If anything remains after filtering, it's a real issue
+  if [ -n "$FILTERED_MATCHES" ]; then
+    echo "✗ BLOCKED: Potential hardcoded secret found"
+    echo "$FILTERED_MATCHES"
+    SECRET_FOUND=true
+    EXIT_CODE=1
+  else
+    echo "✓ No hardcoded secrets found (known test fixtures excluded)"
+  fi
 else
   echo "✓ No hardcoded API keys or secrets found"
 fi

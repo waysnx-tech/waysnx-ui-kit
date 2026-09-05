@@ -38,15 +38,14 @@ export default defineConfig({
     },
   ],
 
-  // Build Storybook fresh and serve the prebuilt static bundle. Building on
-  // every run guarantees the latest stories are included; serving static files
-  // (no Vite lazy-compile) eliminates the "sb-show-preparing-story" render
-  // races that made the dev server flaky under full-suite parallel load.
+  // Serve Storybook for tests.
+  // Use `pnpm --filter storybook run dev` to start the dev server from the storybook package.
+  // The cwd: '..' runs commands from the workspace root, where pnpm can reach the storybook package.
   webServer: {
-    command: 'pnpm --filter storybook run build && pnpm --filter storybook exec http-server ../storybook/storybook-static -p 6006 -s',
+    command: 'pnpm --filter storybook run dev',
     url: 'http://localhost:6006',
     reuseExistingServer: !process.env.CI,
-    timeout: 240 * 1000,
-    cwd: '.',
+    timeout: 120 * 1000,
+    cwd: '..',
   },
 });

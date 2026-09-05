@@ -89,29 +89,32 @@ jobs:
         env:
           CI: true
       
-      - name: Diagnose test failures (if any)
+      - name: Diagnose webServer failure (if tests couldn't start)
         if: failure()
         run: |
-          echo "=== Playwright Diagnostic Report ==="
+          echo "=== WebServer Diagnostics ==="
           echo "Browser: ${{ matrix.browser }}"
-          echo "Test command: pnpm --filter playwright run test:${{ matrix.browser }} -- playwright/tests/p0-regression.spec.ts"
           echo ""
-          echo "=== Checking webServer startup logs ==="
-          if [ -d playwright-report ]; then
-            echo "Playwright report directory exists"
-            ls -la playwright-report/
-          else
-            echo "No playwright-report directory found"
-          fi
+          echo "=== Checking if Storybook is accessible ==="
+          curl -v http://localhost:6006 2>&1 || echo "Storybook not reachable"
           echo ""
-          echo "=== Checking test results ==="
+          echo "=== Checking Playwright test results ==="
           if [ -d playwright/test-results ]; then
-            echo "Test results directory:"
+            echo "Test results exist:"
             ls -la playwright/test-results/
             if [ -f playwright/test-results/junit.xml ]; then
-              echo "JUnit XML content:"
-              head -30 playwright/test-results/junit.xml
+              echo ""
+              echo "JUnit XML content (first 50 lines):"
+              head -50 playwright/test-results/junit.xml
             fi
+          else
+            echo "No test results directory found"
+          fi
+          echo ""
+          echo "=== Checking for Playwright report ==="
+          if [ -d playwright/playwright-report ]; then
+            echo "Playwright report exists"
+            ls -la playwright/playwright-report/ | head -10
           fi
 
       - name: Upload test results
