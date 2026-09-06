@@ -85,7 +85,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers (${{ matrix.browser }})
-        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+        run: pnpm --filter playwright exec playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run P0 regression suite (${{ matrix.browser }})
         run: pnpm --filter playwright run test:${{ matrix.browser }} -- playwright/tests/p0-regression.spec.ts
@@ -99,7 +99,7 @@ jobs:
           echo "Browser: ${{ matrix.browser }}"
           echo ""
           echo "=== Playwright Version & Browser Status ==="
-          pnpm exec playwright --version || echo "Playwright CLI not available"
+          pnpm --filter playwright exec playwright --version || echo "Playwright CLI not available"
           echo ""
           echo "=== Browser Binary Check ==="
           ls -la ~/.cache/ms-playwright/ 2>/dev/null || echo "No browser cache found"
