@@ -1,0 +1,59 @@
+# WaysNX UI Kit Code Owners
+# This file defines code ownership and review responsibilities.
+#
+# Code owners are automatically requested for review when a pull request
+# modifies files matching these patterns.
+
+# Repository governance, configuration, and root-level files
+/.github/                      @waysnx/ui-kit-maintainers
+/GOVERNANCE.md                 @waysnx/ui-kit-maintainers
+/SECURITY.md                   @waysnx/ui-kit-maintainers
+/CONTRIBUTING.md               @waysnx/ui-kit-maintainers
+/CODE_OF_CONDUCT.md            @waysnx/ui-kit-maintainers
+/LICENSE                       @waysnx/ui-kit-maintainers
+/NOTICE                        @waysnx/ui-kit-maintainers
+/package.json                  @waysnx/ui-kit-maintainers
+/pnpm-workspace.yaml           @waysnx/ui-kit-maintainers
+/pnpm-lock.yaml                @waysnx/ui-kit-maintainers
+
+# Build and project configuration
+/tsconfig.json                 @waysnx/ui-kit-maintainers
+/tsconfig.*.json               @waysnx/ui-kit-maintainers
+/*.config.mjs                  @waysnx/ui-kit-maintainers
+/*.config.ts                   @waysnx/ui-kit-maintainers
+/.npmrc                        @waysnx/ui-kit-maintainers
+
+# Scripts and tooling
+/scripts/                      @waysnx/ui-kit-maintainers
+
+# Decisions and documentation
+/decisions/                    @waysnx/ui-kit-maintainers
+/docs/                         @waysnx/ui-kit-maintainers
+
+# Focused UI libraries
+/packages/ui-accessibility/   @waysnx/ui-kit-maintainers
+/packages/ui-communication/   @waysnx/ui-kit-maintainers
+/packages/ui-core/            @waysnx/ui-kit-maintainers
+/packages/ui-dashboard/       @waysnx/ui-kit-maintainers
+/packages/ui-data/            @waysnx/ui-kit-maintainers
+/packages/ui-diagnostics/     @waysnx/ui-kit-maintainers
+/packages/ui-docs/            @waysnx/ui-kit-maintainers
+/packages/ui-feedback/        @waysnx/ui-kit-maintainers
+/packages/ui-files/           @waysnx/ui-kit-maintainers
+/packages/ui-form-builder/    @waysnx/ui-kit-maintainers
+/packages/ui-grid-builder/    @waysnx/ui-kit-maintainers
+/packages/ui-i18n/            @waysnx/ui-kit-maintainers
+/packages/ui-layout/          @waysnx/ui-kit-maintainers
+/packages/ui-maps/            @waysnx/ui-kit-maintainers
+/packages/ui-media/           @waysnx/ui-kit-maintainers
+/packages/ui-navigation/      @waysnx/ui-kit-maintainers
+/packages/ui-security/        @waysnx/ui-kit-maintainers
+/packages/ui-visualization/   @waysnx/ui-kit-maintainers
+
+# Aggregate package
+/packages/ui-kit/             @waysnx/ui-kit-maintainers
+
+# Testing and examples
+/playwright/                  @waysnx/ui-kit-maintainers
+/examples/                    @waysnx/ui-kit-maintainers
+/storybook/                   @waysnx/ui-kit-maintainers
