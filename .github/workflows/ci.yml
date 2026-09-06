@@ -84,6 +84,9 @@ jobs:
       - name: Install dependencies (frozen lockfile)
         run: pnpm install --frozen-lockfile
 
+      - name: Build packages and Storybook
+        run: pnpm build && pnpm --filter storybook run build
+
       - name: Install Playwright browsers (${{ matrix.browser }})
         timeout-minutes: 20
         run: pnpm --filter playwright exec playwright install --with-deps ${{ matrix.browser }}
@@ -93,7 +96,7 @@ jobs:
           echo "=== P0 Regression Test Scope ==="
           echo "Browser: ${{ matrix.browser }}"
           echo "Test file: tests/p0-regression.spec.ts"
-          echo "Command: pnpm --filter playwright run test:${{ matrix.browser }} -- tests/p0-regression.spec.ts"
+          echo "Command: pnpm --filter playwright exec playwright test --project=${{ matrix.browser }} tests/p0-regression.spec.ts"
           echo ""
           echo "=== Available Playwright test files ==="
           ls -1 playwright/tests/*.spec.ts | wc -l
@@ -104,7 +107,7 @@ jobs:
 
       - name: Run P0 regression suite (${{ matrix.browser }})
         timeout-minutes: 30
-        run: pnpm --filter playwright run test:${{ matrix.browser }} -- tests/p0-regression.spec.ts
+        run: pnpm --filter playwright exec playwright test --project=${{ matrix.browser }} tests/p0-regression.spec.ts
         env:
           CI: true
       
