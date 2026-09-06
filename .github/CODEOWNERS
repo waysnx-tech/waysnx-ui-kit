@@ -51,7 +51,7 @@
 /packages/ui-visualization/   @waysnx/ui-kit-maintainers
 
 # Aggregate package
-/packages/ui-kit/             @waysnx/ui-kit-maintainers
+/packages/ui-kit-meta/        @waysnx/ui-kit-maintainers
 
 # Testing and examples
 /playwright/                  @waysnx/ui-kit-maintainers

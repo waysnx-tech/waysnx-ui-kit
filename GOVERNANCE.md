@@ -180,9 +180,9 @@ P0 tests must pass on all three browsers (Chromium, Firefox, WebKit) before any 
 
 ## Branch Protection Policy
 
-The `main` branch is protected to maintain stability and enforce governance.
+The `main` branch must be protected to maintain stability and enforce governance.
 
-**Required configuration** (configured in GitHub Settings):
+**Required configuration** (to be configured in GitHub Settings):
 
 - Pull requests required for all changes
 - All status checks must pass before merge
@@ -193,7 +193,7 @@ The `main` branch is protected to maintain stability and enforce governance.
 - Branch deletion prevented
 - Administrators follow the same rules
 
-This policy is not configured in the repository; it is configured manually in GitHub repository settings.
+These settings are configured manually in GitHub repository settings under Branches → Branch protection rules.
 
 ## Dependency Management
 
