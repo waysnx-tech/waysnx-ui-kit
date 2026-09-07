@@ -187,11 +187,17 @@ jobs:
     name: Publish to npm (OIDC Trusted Publishing)
     runs-on: ubuntu-latest
     needs: verify-packages
-    # Protected environment: require a human reviewer to approve each run.
-    environment: release
+    # Protected environment gates ONLY the real publish (dry_run=false), so a
+    # human reviewer must approve each actual publication. A dry run
+    # (dry_run=true) uploads nothing, needs no token, and mints no OIDC
+    # credential, so it deliberately does NOT enter the `release` environment —
+    # this keeps the dry-run path unattended and avoids requiring the protected
+    # environment to exist for validation runs.
+    environment: ${{ github.event.inputs.dry_run == 'false' && 'release' || '' }}
     permissions:
       contents: read
-      # Required for npm Trusted Publishing (OIDC) and provenance.
+      # Required for npm Trusted Publishing (OIDC) and provenance on the real
+      # publish. Harmless on the dry-run path (no credential is minted).
       id-token: write
     steps:
       - uses: actions/checkout@v4
