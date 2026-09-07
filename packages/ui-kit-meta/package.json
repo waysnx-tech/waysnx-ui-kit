@@ -5,6 +5,7 @@
   "license": "Apache-2.0",
   "keywords": ["react", "ui", "components", "form-builder", "layout", "feedback", "waysnx"],
   "author": "WaysNX Technologies",
+  "publishConfig": { "access": "public" },
   "files": ["index.js", "index.d.ts", "README.md", "LLM.md"],
   "dependencies": {
     "@waysnx/ui-core": "workspace:*",
