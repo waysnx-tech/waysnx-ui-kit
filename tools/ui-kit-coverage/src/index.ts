@@ -9,5 +9,6 @@ export { analyze, ANALYZER_VERSION, type AnalyzeResult } from "./analyze.js";
 export { resolveConfig, CONFIG_FILENAME } from "./cli/config.js";
 export { discoverProject, enumerateSourceFiles, type DiscoveryResult } from "./discovery/index.js";
 export { parseSourceFiles, type ParseResult } from "./parser/index.js";
+export { analyzeAdoption, type AdoptionResult } from "./analyzers/adoption/index.js";
 export { renderJson, writeJsonReport } from "./reports/json/index.js";
 export * from "./types/index.js";

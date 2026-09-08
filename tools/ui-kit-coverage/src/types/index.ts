@@ -113,14 +113,48 @@ export interface Limitation {
   location?: SourceLocation;
 }
 
+// ---------------------------------------------------------------------------
+// M2 — UI Kit adoption report shapes (approval doc §6, §9, §17, §18 of spec)
+// ---------------------------------------------------------------------------
+
+/** Package-level adoption state for a `@waysnx/*` package (spec §6). */
+export interface PackageReport {
+  name: string;
+  /** Present in dependencies/devDependencies/peerDependencies of package.json. */
+  declared: boolean;
+  /** At least one direct import (re-exports excluded, spec §7). */
+  imported: boolean;
+  /** At least one component from this package is rendered in JSX. */
+  used: boolean;
+  /** Imported but no JSX usage resolved. */
+  importedButUnused: boolean;
+  /** Imported in source but NOT declared in package.json, where detectable (§6). */
+  referencedButNotInstalled: boolean;
+  /** Distinct components from this package detected (imported or used). */
+  componentsDetected: number;
+}
+
+/** Component-level utilization (spec §8, §18). */
+export interface ComponentReport {
+  component: string;
+  package: string;
+  /** Number of files that directly import this component. */
+  importFiles: number;
+  /** Number of JSX usages across the project. */
+  jsxUsages: number;
+  /** Files where the component appears (imported or used), sorted. */
+  files: string[];
+  /** Resolved source locations of JSX usages. */
+  locations: SourceLocation[];
+}
+
 /**
- * The M1 coverage report (approval doc §11).
+ * The coverage report (approval doc §11).
  *
- * `packages`, `components`, `nativeUi`, `customComponents`, and
- * `replacementCandidates` are present as empty arrays in M1 — their contents
- * are produced by later milestones. Their element types are intentionally left
- * open (`unknown[]`) in M1 so the M1 schema does not prematurely commit to
- * analysis shapes that belong to M2–M4.
+ * As of M2, `packages` and `components` carry UI Kit adoption facts. `nativeUi`,
+ * `customComponents`, and `replacementCandidates` remain empty (`unknown[]`)
+ * until M3/M4 — their shapes are intentionally not committed here yet, so M3+
+ * scope is not pulled forward.
  */
 export interface CoverageReport {
   schemaVersion: typeof SCHEMA_VERSION;
@@ -128,8 +162,8 @@ export interface CoverageReport {
   project: ProjectInfo;
   files: FileCounts;
   summary: CoverageSummary;
-  packages: unknown[];
-  components: unknown[];
+  packages: PackageReport[];
+  components: ComponentReport[];
   nativeUi: unknown[];
   customComponents: unknown[];
   replacementCandidates: unknown[];

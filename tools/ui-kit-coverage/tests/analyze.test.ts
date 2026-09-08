@@ -36,15 +36,11 @@ describe("analyze — M1 pipeline + §11 schema", () => {
     expect(report.files.scanned).toBeGreaterThanOrEqual(report.files.supported);
     expect(report.files.ignored).toBeGreaterThanOrEqual(0);
 
-    // summary is zeros in M1 (analysis is M2+)
-    expect(report.summary).toEqual({
-      waysnxPackagesDetected: 0,
-      uiKitComponentsDetected: 0,
-      nativeElementsDetected: 0,
-      customComponentsDetected: 0,
-    });
+    // M2 populates adoption counts; native/custom stay 0 (M3).
+    expect(report.summary.waysnxPackagesDetected).toBeGreaterThanOrEqual(1);
+    expect(report.summary.uiKitComponentsDetected).toBeGreaterThanOrEqual(1);
 
-    // analysis arrays present and empty in M1
+    // all analysis arrays present
     for (const key of [
       "packages",
       "components",
@@ -53,9 +49,19 @@ describe("analyze — M1 pipeline + §11 schema", () => {
       "replacementCandidates",
     ] as const) {
       expect(Array.isArray(report[key])).toBe(true);
-      expect(report[key]).toHaveLength(0);
     }
     expect(Array.isArray(report.limitations)).toBe(true);
+
+    // M2 populates adoption: react-ts imports and uses Button from ui-core.
+    expect(report.packages.some((p) => p.name === "@waysnx/ui-core" && p.used)).toBe(true);
+    expect(report.components.some((c) => c.component === "Button" && c.jsxUsages > 0)).toBe(true);
+
+    // M3+ not pulled forward — native/custom/replacement remain empty.
+    expect(report.nativeUi).toHaveLength(0);
+    expect(report.customComponents).toHaveLength(0);
+    expect(report.replacementCandidates).toHaveLength(0);
+    expect(report.summary.nativeElementsDetected).toBe(0);
+    expect(report.summary.customComponentsDetected).toBe(0);
   });
 
   it("exposes the normalized intermediate model for parsed files", async () => {
