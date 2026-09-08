@@ -1,0 +1,11 @@
+{
+  "name": "fixture-native-custom",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@waysnx/ui-core": "^1.0.0",
+    "@waysnx/ui-diagnostics": "^1.0.0",
+    "react": "^18.0.0",
+    "react-router-dom": "^6.0.0"
+  }
+}

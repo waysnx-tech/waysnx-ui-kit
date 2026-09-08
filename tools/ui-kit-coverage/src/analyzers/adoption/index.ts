@@ -88,23 +88,32 @@ export function analyzeAdoption(
     const namespaces = new Map<string, string>();
 
     for (const imp of file.imports) {
-      if (!isWaysnx(imp.module)) continue;
-      importedPackages.add(imp.module);
+      // Use the normalized base package so subpath imports
+      // (e.g. "@waysnx/ui-diagnostics/react") attribute to their base.
+      const pkg = imp.basePackage;
+      if (!isWaysnx(pkg)) continue;
+      // Type-only imports are erased at build time — they are NOT runtime
+      // adoption and must not count as imported/used components.
+      if (imp.typeOnly) continue;
+      importedPackages.add(pkg);
       if (imp.kind === "namespace") {
-        namespaces.set(imp.local, imp.module);
+        namespaces.set(imp.local, pkg);
       } else {
         // named | aliased | default — resolve to the original exported name
         const component = imp.imported === "default" ? imp.local : imp.imported;
-        named.set(imp.local, { pkg: imp.module, component });
+        named.set(imp.local, { pkg, component });
         // Importing a component counts as an "import file" for that component.
-        ensureComp(imp.module, component).importFiles.add(file.file);
+        ensureComp(pkg, component).importFiles.add(file.file);
       }
     }
 
     // Re-exports are tracked separately and NOT counted as direct usage (§7).
     for (const exp of file.exports) {
-      if (exp.reExport && exp.from && isWaysnx(exp.from)) {
-        reExportedPackages.add(exp.from);
+      if (exp.reExport && exp.from) {
+        const base = exp.from.startsWith("@")
+          ? exp.from.split("/").slice(0, 2).join("/")
+          : exp.from.split("/")[0] ?? exp.from;
+        if (isWaysnx(base)) reExportedPackages.add(base);
       }
     }
 

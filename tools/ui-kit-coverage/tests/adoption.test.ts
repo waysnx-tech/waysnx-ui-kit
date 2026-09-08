@@ -78,11 +78,8 @@ describe("M2 adoption — summary", () => {
     expect(report.summary.uiKitComponentsDetected).toBe(3);
   });
 
-  it("does not populate M3+ fields (scope not pulled forward)", () => {
-    expect(report.summary.nativeElementsDetected).toBe(0);
-    expect(report.summary.customComponentsDetected).toBe(0);
-    expect(report.nativeUi).toHaveLength(0);
-    expect(report.customComponents).toHaveLength(0);
+  it("does not populate M4 fields (replacement scope not pulled forward)", () => {
+    // M3 populates native/custom; M4 (replacement candidates) stays empty.
     expect(report.replacementCandidates).toHaveLength(0);
   });
 });

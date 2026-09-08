@@ -27,8 +27,46 @@ import type {
   NormalizedImport,
   NormalizedJsxElement,
   NormalizedNativeElement,
+  NormalizedSideEffectImport,
   SourceLocation,
 } from "../types/index.js";
+
+/** Known stylesheet extensions (side-effect import → "style"). */
+const STYLE_EXTENSIONS = [".css", ".scss", ".sass", ".less", ".styl"];
+/** Known asset extensions (side-effect import → "asset"). */
+const ASSET_EXTENSIONS = [
+  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".svg", ".ico", ".bmp",
+  ".woff", ".woff2", ".ttf", ".otf", ".eot",
+  ".mp4", ".webm", ".mp3", ".wav", ".ogg",
+];
+
+/**
+ * Normalize a module specifier to its base package.
+ *   "@waysnx/ui-diagnostics/react" → "@waysnx/ui-diagnostics"
+ *   "@waysnx/ui-core"              → "@waysnx/ui-core"
+ *   "react-dom/client"             → "react-dom"
+ *   "./local", "../x"              → returned as-is (relative)
+ * The ORIGINAL specifier is always preserved separately by the caller.
+ */
+export function toBasePackage(moduleSpecifier: string): string {
+  if (moduleSpecifier.startsWith(".") || moduleSpecifier.startsWith("/")) {
+    return moduleSpecifier;
+  }
+  const parts = moduleSpecifier.split("/");
+  if (moduleSpecifier.startsWith("@")) {
+    // scoped: @scope/name[/subpath...]
+    return parts.slice(0, 2).join("/");
+  }
+  // plain: name[/subpath...]
+  return parts[0] ?? moduleSpecifier;
+}
+
+function classifySideEffect(moduleSpecifier: string): "style" | "asset" | "other" {
+  const lower = moduleSpecifier.toLowerCase();
+  if (STYLE_EXTENSIONS.some((e) => lower.endsWith(e))) return "style";
+  if (ASSET_EXTENSIONS.some((e) => lower.endsWith(e))) return "asset";
+  return "other";
+}
 
 /** Native/intrinsic elements recognized structurally (lowercase JSX tags). */
 const NATIVE_ELEMENTS = new Set<string>([
@@ -116,6 +154,7 @@ function normalizeFile(
   );
 
   const imports: NormalizedImport[] = [];
+  const sideEffectImports: NormalizedSideEffectImport[] = [];
   const exports: NormalizedExport[] = [];
   const jsxElements: NormalizedJsxElement[] = [];
   const nativeElements: NormalizedNativeElement[] = [];
@@ -132,17 +171,34 @@ function normalizeFile(
   for (const stmt of sourceFile.statements) {
     if (ts.isImportDeclaration(stmt)) {
       const spec = stmt.moduleSpecifier;
-      if (!spec || !ts.isStringLiteral(spec) || !stmt.importClause) continue;
+      if (!spec || !ts.isStringLiteral(spec)) continue;
       const moduleName = spec.text;
-      const clause = stmt.importClause;
+      const base = toBasePackage(moduleName);
       const at = loc(stmt.getStart(sourceFile));
+
+      // Side-effect import: `import '...'` with no import clause.
+      if (!stmt.importClause) {
+        sideEffectImports.push({
+          module: moduleName,
+          basePackage: base,
+          kind: classifySideEffect(moduleName),
+          location: at,
+        });
+        continue;
+      }
+
+      const clause = stmt.importClause;
+      // Whole-clause `import type ...`.
+      const clauseTypeOnly = clause.isTypeOnly === true;
 
       if (clause.name) {
         imports.push({
           module: moduleName,
+          basePackage: base,
           local: clause.name.text,
           imported: "default",
           kind: "default",
+          typeOnly: clauseTypeOnly,
           location: at,
         });
       }
@@ -151,20 +207,26 @@ function normalizeFile(
         if (ts.isNamespaceImport(bindings)) {
           imports.push({
             module: moduleName,
+            basePackage: base,
             local: bindings.name.text,
             imported: "*",
             kind: "namespace",
+            typeOnly: clauseTypeOnly,
             location: at,
           });
         } else if (ts.isNamedImports(bindings)) {
           for (const el of bindings.elements) {
             const local = el.name.text;
             const importedName = el.propertyName ? el.propertyName.text : local;
+            // Per-specifier `import { type X }` OR whole-clause type-only.
+            const typeOnly = clauseTypeOnly || el.isTypeOnly === true;
             imports.push({
               module: moduleName,
+              basePackage: base,
               local,
               imported: importedName,
               kind: el.propertyName ? "aliased" : "named",
+              typeOnly,
               location: at,
             });
           }
@@ -237,6 +299,7 @@ function normalizeFile(
     file: relPath,
     language: languageFor(file),
     imports,
+    sideEffectImports,
     exports,
     jsxElements,
     nativeElements,

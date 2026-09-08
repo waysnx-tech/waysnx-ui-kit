@@ -56,12 +56,8 @@ describe("analyze — M1 pipeline + §11 schema", () => {
     expect(report.packages.some((p) => p.name === "@waysnx/ui-core" && p.used)).toBe(true);
     expect(report.components.some((c) => c.component === "Button" && c.jsxUsages > 0)).toBe(true);
 
-    // M3+ not pulled forward — native/custom/replacement remain empty.
-    expect(report.nativeUi).toHaveLength(0);
-    expect(report.customComponents).toHaveLength(0);
+    // M4 not pulled forward — replacement candidates remain empty.
     expect(report.replacementCandidates).toHaveLength(0);
-    expect(report.summary.nativeElementsDetected).toBe(0);
-    expect(report.summary.customComponentsDetected).toBe(0);
   });
 
   it("exposes the normalized intermediate model for parsed files", async () => {

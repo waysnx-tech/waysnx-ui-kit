@@ -25,13 +25,36 @@ export interface SourceLocation {
 
 /** An import binding discovered in a file. */
 export interface NormalizedImport {
-  /** Module specifier, e.g. "@waysnx/ui-core" or "react". */
+  /** Original module specifier as written, e.g. "@waysnx/ui-diagnostics/react". */
   module: string;
+  /** Normalized base package (e.g. "@waysnx/ui-diagnostics") for a scoped/plain
+   *  package specifier; equals `module` when there is no subpath. */
+  basePackage: string;
   /** Local identifier bound in this file. */
   local: string;
   /** Original exported name; "*" for namespace, "default" for default import. */
   imported: string;
   kind: "named" | "aliased" | "namespace" | "default";
+  /** True for `import type ...` or a per-specifier `import { type X }`. Type-only
+   *  imports are erased at build time and are NOT runtime usage. */
+  typeOnly: boolean;
+  location: SourceLocation;
+}
+
+/** An unbound side-effect import: `import '...'` (no bindings). */
+export interface NormalizedSideEffectImport {
+  /** Original module specifier as written. */
+  module: string;
+  /** Normalized base package when the specifier is a package import. */
+  basePackage: string;
+  /**
+   * Classification:
+   *  - "style": a stylesheet (.css/.scss/.sass/.less)
+   *  - "asset": a known asset (image/font/media)
+   *  - "other": any other side-effect import (NOT styling; must not count as a
+   *    component import)
+   */
+  kind: "style" | "asset" | "other";
   location: SourceLocation;
 }
 
@@ -72,6 +95,8 @@ export interface NormalizedFile {
   file: string;
   language: string;
   imports: NormalizedImport[];
+  /** Unbound side-effect imports (styling/asset/other), separate from `imports`. */
+  sideEffectImports: NormalizedSideEffectImport[];
   exports: NormalizedExport[];
   jsxElements: NormalizedJsxElement[];
   nativeElements: NormalizedNativeElement[];
@@ -148,6 +173,34 @@ export interface ComponentReport {
   locations: SourceLocation[];
 }
 
+// ---------------------------------------------------------------------------
+// M3 — Native & Custom UI report shapes (spec §10, §11, §19)
+// ---------------------------------------------------------------------------
+
+/** Native (intrinsic) element usage (spec §10, §19). Facts only; never "bad". */
+export interface NativeUiReport {
+  element: string;
+  count: number;
+  files: string[];
+}
+
+/**
+ * Application-defined component (spec §11). Reported CONSERVATIVELY: a
+ * capitalized JSX tag is custom only when it resolves to a project-defined
+ * component (a local declaration in the scanned set, or a local/relative
+ * import). External or unresolved components are NOT reported as custom.
+ */
+export interface CustomComponentReport {
+  component: string;
+  usages: number;
+  /** Files where the component is used, sorted. */
+  files: string[];
+  /** Definition location when the component is declared in the scanned set. */
+  definition?: SourceLocation;
+  /** True when the component's definition file imports `@waysnx/*` (heuristic). */
+  wrapsUiKit: boolean;
+}
+
 /**
  * The coverage report (approval doc §11).
  *
@@ -164,8 +217,9 @@ export interface CoverageReport {
   summary: CoverageSummary;
   packages: PackageReport[];
   components: ComponentReport[];
-  nativeUi: unknown[];
-  customComponents: unknown[];
+  nativeUi: NativeUiReport[];
+  customComponents: CustomComponentReport[];
+  /** M4 (replacement candidates) — intentionally empty until then. */
   replacementCandidates: unknown[];
   limitations: Limitation[];
 }

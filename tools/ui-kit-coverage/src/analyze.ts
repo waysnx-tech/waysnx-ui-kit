@@ -15,6 +15,8 @@
 import { discoverProject } from "./discovery/index.js";
 import { parseSourceFiles } from "./parser/index.js";
 import { analyzeAdoption } from "./analyzers/adoption/index.js";
+import { analyzeNative } from "./analyzers/native-ui/index.js";
+import { analyzeCustom } from "./analyzers/custom-ui/index.js";
 import {
   SCHEMA_VERSION,
   type CoverageReport,
@@ -64,6 +66,10 @@ export async function analyze(config: ResolvedConfig): Promise<AnalyzeResult> {
     }
   }
 
+  // --- M3: native UI + custom components (both consume the normalized model) ---
+  const nativeUi = analyzeNative(parse.files);
+  const customComponents = analyzeCustom(parse.files);
+
   const projectName =
     discovery.manifest?.name ??
     config.projectRoot.split(/[\\/]/).filter(Boolean).pop() ??
@@ -86,14 +92,15 @@ export async function analyze(config: ResolvedConfig): Promise<AnalyzeResult> {
       // M2: packages with at least one resolved JSX usage, and components rendered.
       waysnxPackagesDetected: adoption.packages.filter((p) => p.used).length,
       uiKitComponentsDetected: adoption.components.filter((c) => c.jsxUsages > 0).length,
-      // Native + custom detection is M3.
-      nativeElementsDetected: 0,
-      customComponentsDetected: 0,
+      // M3: total native element occurrences, and distinct custom components.
+      nativeElementsDetected: nativeUi.reduce((n, e) => n + e.count, 0),
+      customComponentsDetected: customComponents.length,
     },
     packages: adoption.packages,
     components: adoption.components,
-    nativeUi: [],
-    customComponents: [],
+    nativeUi,
+    customComponents,
+    // M4 (replacement candidates) — intentionally empty.
     replacementCandidates: [],
     limitations,
   };
