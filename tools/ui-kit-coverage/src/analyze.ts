@@ -17,6 +17,8 @@ import { parseSourceFiles } from "./parser/index.js";
 import { analyzeAdoption } from "./analyzers/adoption/index.js";
 import { analyzeNative } from "./analyzers/native-ui/index.js";
 import { analyzeCustom } from "./analyzers/custom-ui/index.js";
+import { loadCatalog } from "./catalog/index.js";
+import { buildReplacementCandidates } from "./analyzers/replacement/index.js";
 import {
   SCHEMA_VERSION,
   type CoverageReport,
@@ -70,6 +72,10 @@ export async function analyze(config: ResolvedConfig): Promise<AnalyzeResult> {
   const nativeUi = analyzeNative(parse.files);
   const customComponents = analyzeCustom(parse.files);
 
+  // --- M4: replacement candidates (INFERENCES; catalog facts + observed facts) ---
+  const catalog = await loadCatalog(config.catalog);
+  const replacementCandidates = buildReplacementCandidates(catalog, nativeUi, customComponents);
+
   const projectName =
     discovery.manifest?.name ??
     config.projectRoot.split(/[\\/]/).filter(Boolean).pop() ??
@@ -100,8 +106,7 @@ export async function analyze(config: ResolvedConfig): Promise<AnalyzeResult> {
     components: adoption.components,
     nativeUi,
     customComponents,
-    // M4 (replacement candidates) — intentionally empty.
-    replacementCandidates: [],
+    replacementCandidates,
     limitations,
   };
 

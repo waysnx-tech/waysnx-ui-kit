@@ -1,0 +1,405 @@
+{
+  "schemaVersion": "1.0",
+  "catalogVersion": "0.1.1",
+  "source": {
+    "type": "hand-authored",
+    "status": "partial",
+    "description": "Curated v0.1 catalog for UI Kit Coverage Analyzer. Component identity and capability facts were validated against the supplied WaysNX UI Kit WDG/AI documentation export. Replacement mappings remain hand-authored and intentionally conservative.",
+    "sourceMaterial": {
+      "type": "ui-kit-ai-documentation-export",
+      "generatedDate": "2026-09-08",
+      "runtimeDependency": false
+    }
+  },
+  "uiKit": {
+    "name": "WaysNX UI Kit",
+    "scope": "@waysnx",
+    "repository": "waysnx-tech/waysnx-ui-kit",
+    "version": "1.0.0"
+  },
+  "catalogPolicy": {
+    "partial": true,
+    "replacementMappingsAreHandAuthored": true,
+    "missingMappingDoesNotMeanNoEquivalent": true,
+    "nativeElementsAreNotAutomaticallyReplaceable": true,
+    "wdgRuntimeDependency": false,
+    "wdgWillBeUsedLaterForCatalogGenerationOrValidation": true
+  },
+  "components": [
+    {
+      "name": "Button",
+      "package": "@waysnx/ui-core",
+      "export": "Button",
+      "category": "input",
+      "semanticElements": [
+        "button"
+      ],
+      "nativeAlternatives": [
+        "button"
+      ],
+      "replacement": {
+        "supported": true,
+        "confidence": "high"
+      },
+      "semanticCategory": "display",
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-core",
+        "sourceComponentId": "ui-core:button",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Enable users to trigger actions by pressing a clickable element"
+      }
+    },
+    {
+      "name": "Checkbox",
+      "package": "@waysnx/ui-core",
+      "export": "Checkbox",
+      "category": "input",
+      "semanticElements": [
+        "input[type=checkbox]"
+      ],
+      "nativeAlternatives": [
+        "input[type=checkbox]"
+      ],
+      "replacement": {
+        "supported": true,
+        "confidence": "high"
+      },
+      "semanticCategory": "input",
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-core",
+        "sourceComponentId": "ui-core:checkbox",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Allow users to select one or more options from a list of independent choices"
+      }
+    },
+    {
+      "name": "DatePicker",
+      "package": "@waysnx/ui-core",
+      "export": "DatePicker",
+      "category": "input",
+      "semanticElements": [
+        "input[type=date]"
+      ],
+      "nativeAlternatives": [
+        "input[type=date]"
+      ],
+      "replacement": {
+        "supported": true,
+        "confidence": "medium"
+      },
+      "semanticCategory": "input",
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-core",
+        "sourceComponentId": "ui-core:datepicker",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Enable users to select a specific date through an interactive calendar interface"
+      }
+    },
+    {
+      "name": "Image",
+      "package": "@waysnx/ui-core",
+      "export": "Image",
+      "category": "display",
+      "semanticCategory": "display",
+      "semanticElements": [
+        "img"
+      ],
+      "nativeAlternatives": [
+        "img"
+      ],
+      "replacement": {
+        "supported": true,
+        "confidence": "high"
+      },
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-core",
+        "sourceComponentId": "ui-core:image",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Display images with responsive sizing, fallback handling, and accessibility support"
+      }
+    },
+    {
+      "name": "Input",
+      "package": "@waysnx/ui-core",
+      "export": "Input",
+      "category": "input",
+      "semanticElements": [
+        "input"
+      ],
+      "nativeAlternatives": [
+        "input"
+      ],
+      "replacement": {
+        "supported": true,
+        "confidence": "high"
+      },
+      "semanticCategory": "input",
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-core",
+        "sourceComponentId": "ui-core:input",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Collect single-line text and numeric input from users with validation and formatting support"
+      }
+    },
+    {
+      "name": "Radio",
+      "package": "@waysnx/ui-core",
+      "export": "Radio",
+      "category": "input",
+      "semanticElements": [
+        "input[type=radio]"
+      ],
+      "nativeAlternatives": [
+        "input[type=radio]"
+      ],
+      "replacement": {
+        "supported": true,
+        "confidence": "high"
+      },
+      "semanticCategory": "input",
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-core",
+        "sourceComponentId": "ui-core:radio",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Enable users to select exactly one option from a list of mutually exclusive choices"
+      }
+    },
+    {
+      "name": "Select",
+      "package": "@waysnx/ui-core",
+      "export": "Select",
+      "category": "input",
+      "semanticElements": [
+        "select"
+      ],
+      "nativeAlternatives": [
+        "select"
+      ],
+      "replacement": {
+        "supported": true,
+        "confidence": "high"
+      },
+      "semanticCategory": "input",
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-core",
+        "sourceComponentId": "ui-core:select",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Enable users to select one or more options from a dropdown list with optional search"
+      }
+    },
+    {
+      "name": "Switch",
+      "package": "@waysnx/ui-core",
+      "export": "Switch",
+      "category": "input",
+      "semanticElements": [
+        "input[type=checkbox]",
+        "[role=switch]"
+      ],
+      "nativeAlternatives": [
+        "input[type=checkbox]"
+      ],
+      "replacement": {
+        "supported": true,
+        "confidence": "medium"
+      },
+      "semanticCategory": "utility",
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-core",
+        "sourceComponentId": "ui-core:switch",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Enable users to toggle a setting or feature on or off with a visual switch"
+      }
+    },
+    {
+      "name": "Textarea",
+      "package": "@waysnx/ui-core",
+      "export": "Textarea",
+      "category": "input",
+      "semanticCategory": "input",
+      "semanticElements": [
+        "textarea"
+      ],
+      "nativeAlternatives": [
+        "textarea"
+      ],
+      "replacement": {
+        "supported": true,
+        "confidence": "high"
+      },
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-core",
+        "sourceComponentId": "ui-core:textarea",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Collect multi-line text input from users with optional length limits and formatting"
+      }
+    },
+    {
+      "name": "Alert",
+      "package": "@waysnx/ui-feedback",
+      "export": "Alert",
+      "category": "feedback",
+      "semanticElements": [
+        "[role=alert]"
+      ],
+      "nativeAlternatives": [],
+      "replacement": {
+        "supported": true,
+        "confidence": "high"
+      },
+      "semanticCategory": "feedback",
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-feedback",
+        "sourceComponentId": "ui-feedback:alert",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Display a contextual message that requires user attention"
+      }
+    },
+    {
+      "name": "Modal",
+      "package": "@waysnx/ui-feedback",
+      "export": "Modal",
+      "category": "overlay",
+      "semanticElements": [
+        "dialog",
+        "[role=dialog]"
+      ],
+      "nativeAlternatives": [
+        "dialog"
+      ],
+      "replacement": {
+        "supported": true,
+        "confidence": "high"
+      },
+      "semanticCategory": "overlay",
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-feedback",
+        "sourceComponentId": "ui-feedback:modal",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Display important content in a focused dialog window"
+      },
+      "catalogNotes": [
+        "Native <dialog> mapping is retained as a hand-authored semantic alternative; behavioral equivalence should be reviewed before broad recommendation use."
+      ]
+    },
+    {
+      "name": "Toast",
+      "package": "@waysnx/ui-feedback",
+      "export": "Toast",
+      "category": "feedback",
+      "semanticElements": [
+        "[role=status]",
+        "[role=alert]"
+      ],
+      "nativeAlternatives": [],
+      "replacement": {
+        "supported": true,
+        "confidence": "medium"
+      },
+      "semanticCategory": "feedback",
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-feedback",
+        "sourceComponentId": "ui-feedback:toast",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Display a temporary notification message that auto-dismisses"
+      }
+    },
+    {
+      "name": "Tooltip",
+      "package": "@waysnx/ui-feedback",
+      "export": "Tooltip",
+      "category": "feedback",
+      "semanticElements": [
+        "[role=tooltip]"
+      ],
+      "nativeAlternatives": [],
+      "replacement": {
+        "supported": true,
+        "confidence": "medium"
+      },
+      "semanticCategory": "overlay",
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-feedback",
+        "sourceComponentId": "ui-feedback:tooltip",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Display supplementary information when user hovers over an element"
+      }
+    },
+    {
+      "name": "Grid",
+      "package": "@waysnx/ui-grid-builder",
+      "export": "Grid",
+      "category": "data",
+      "semanticCategory": "layout",
+      "semanticElements": [],
+      "nativeAlternatives": [],
+      "replacement": {
+        "supported": false,
+        "confidence": "high"
+      },
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-grid-builder",
+        "sourceComponentId": "ui-grid-builder:grid",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Build and configure responsive data grids with columns and rows"
+      },
+      "catalogNotes": [
+        "Documented data-grid component in @waysnx/ui-grid-builder.",
+        "No <table> replacement mapping is asserted in this catalog revision.",
+        "A table-to-grid mapping can be added later after explicit engineering validation."
+      ]
+    },
+    {
+      "name": "Tabs",
+      "package": "@waysnx/ui-layout",
+      "export": "Tabs",
+      "category": "navigation",
+      "semanticElements": [
+        "[role=tablist]",
+        "[role=tab]"
+      ],
+      "nativeAlternatives": [],
+      "replacement": {
+        "supported": true,
+        "confidence": "medium"
+      },
+      "semanticCategory": "navigation",
+      "catalogEvidence": {
+        "sourceType": "ui-kit-ai-documentation-export",
+        "sourceLibrary": "ui-layout",
+        "sourceComponentId": "ui-layout:tabs",
+        "sourceVersion": "1.0.0",
+        "status": "stable",
+        "purpose": "Organize content into tabs that users can switch between"
+      }
+    }
+  ]
+}

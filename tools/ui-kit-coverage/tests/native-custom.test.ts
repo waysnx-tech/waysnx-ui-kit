@@ -86,8 +86,9 @@ describe("M3 subpath import normalization", () => {
   });
 });
 
-describe("M3 does not pull M4 scope forward", () => {
-  it("replacementCandidates stays empty", () => {
-    expect(report.replacementCandidates).toHaveLength(0);
+describe("M3 native/custom facts feed M4 inferences without mixing", () => {
+  it("native + custom are observed facts (no confidence field on them)", () => {
+    for (const n of report.nativeUi) expect(n).not.toHaveProperty("confidence");
+    for (const c of report.customComponents) expect(c).not.toHaveProperty("confidence");
   });
 });

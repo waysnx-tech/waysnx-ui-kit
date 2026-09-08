@@ -30,6 +30,7 @@
   },
   "files": [
     "dist",
+    "catalog",
     "README.md"
   ],
   "engines": {

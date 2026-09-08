@@ -19,6 +19,9 @@ export interface SourceLocation {
   column: number;
 }
 
+/** Confidence attached to every inferred replacement candidate (spec §14). */
+export type Confidence = "HIGH" | "MEDIUM" | "LOW";
+
 // ---------------------------------------------------------------------------
 // Normalized intermediate analysis model (approval doc §5/§9/§10)
 // ---------------------------------------------------------------------------
@@ -201,6 +204,55 @@ export interface CustomComponentReport {
   wrapsUiKit: boolean;
 }
 
+// ---------------------------------------------------------------------------
+// M4 — Replacement candidates (INFERENCES, kept separate from facts; spec §12/§14)
+// ---------------------------------------------------------------------------
+
+/**
+ * Explainable evidence for a replacement candidate: exactly which observed UI
+ * fact and which catalog entry combined to produce the inference. This makes
+ * every candidate traceable (spec: "explainable evidence").
+ */
+export interface ReplacementEvidence {
+  /** The observed fact that triggered the candidate. */
+  observedFact: {
+    kind: "native-element" | "custom-component";
+    /** The native element name or the custom component name. */
+    value: string;
+    /** Why this fact matched (e.g. "native element listed as catalog alternative"). */
+    reason: string;
+  };
+  /** The catalog entry that supplied the suggestion. */
+  catalogEntry: {
+    name: string;
+    package: string;
+    export: string;
+    /** The catalog's own declared confidence for this component. */
+    catalogConfidence: Confidence;
+    /** How the matched value related to the catalog entry. */
+    matchBasis: "native-alternative" | "exact-name" | "name-contains";
+  };
+}
+
+/**
+ * An inferred replacement candidate. NOT a recommendation on its own — it is a
+ * candidate with a confidence and traceable evidence. Native elements do not
+ * automatically become opportunities; a candidate exists only where the catalog
+ * supports a mapping.
+ */
+export interface ReplacementCandidate {
+  /** Observed source (native element name or custom component name). */
+  source: string;
+  sourceKind: "native" | "custom";
+  /** Suggested UI Kit component, e.g. "@waysnx/ui-core/Button". */
+  candidate: string;
+  package: string;
+  confidence: Confidence;
+  occurrences: number;
+  files: string[];
+  evidence: ReplacementEvidence;
+}
+
 /**
  * The coverage report (approval doc §11).
  *
@@ -219,8 +271,8 @@ export interface CoverageReport {
   components: ComponentReport[];
   nativeUi: NativeUiReport[];
   customComponents: CustomComponentReport[];
-  /** M4 (replacement candidates) — intentionally empty until then. */
-  replacementCandidates: unknown[];
+  /** M4 — inferred replacement candidates (kept separate from observed facts). */
+  replacementCandidates: ReplacementCandidate[];
   limitations: Limitation[];
 }
 
@@ -240,6 +292,8 @@ export interface ResolvedConfig {
   include: string[];
   exclude: string[];
   verbose: boolean;
+  /** Optional path to a custom capability catalog (M4). */
+  catalog?: string;
 }
 
 /** The subset of config that can appear in ui-kit-coverage.config.json. */
@@ -247,6 +301,8 @@ export interface FileConfig {
   include?: string[];
   exclude?: string[];
   output?: string;
+  /** Optional path to a custom capability catalog (M4). */
+  catalog?: string;
 }
 
 /** Raw CLI options after parsing, before merge/resolution. */

@@ -39,6 +39,7 @@ function sanitizeFileConfig(raw: unknown): FileConfig {
     if (Array.isArray(r.include)) out.include = r.include.filter((x): x is string => typeof x === "string");
     if (Array.isArray(r.exclude)) out.exclude = r.exclude.filter((x): x is string => typeof x === "string");
     if (typeof r.output === "string") out.output = r.output;
+    if (typeof r.catalog === "string") out.catalog = r.catalog;
   }
   return out;
 }
@@ -82,6 +83,9 @@ export async function resolveConfig(
     autoConfig.output ??
     path.join(projectRoot, DEFAULT_OUTPUT_DIRNAME);
 
+  const catalogRaw = explicitConfig.catalog ?? autoConfig.catalog;
+  const catalog = catalogRaw ? path.resolve(projectRoot, catalogRaw) : undefined;
+
   return {
     projectRoot,
     output: path.resolve(outputRaw),
@@ -89,5 +93,6 @@ export async function resolveConfig(
     include,
     exclude,
     verbose,
+    catalog,
   };
 }

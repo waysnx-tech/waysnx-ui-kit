@@ -78,9 +78,10 @@ describe("M2 adoption — summary", () => {
     expect(report.summary.uiKitComponentsDetected).toBe(3);
   });
 
-  it("does not populate M4 fields (replacement scope not pulled forward)", () => {
-    // M3 populates native/custom; M4 (replacement candidates) stays empty.
-    expect(report.replacementCandidates).toHaveLength(0);
+  it("adoption facts (packages/components) carry no inference confidence", () => {
+    // Adoption remains observed facts; replacement inferences live separately.
+    for (const c of report.components) expect(c).not.toHaveProperty("confidence");
+    for (const p of report.packages) expect(p).not.toHaveProperty("confidence");
   });
 });
 

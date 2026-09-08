@@ -56,8 +56,10 @@ describe("analyze — M1 pipeline + §11 schema", () => {
     expect(report.packages.some((p) => p.name === "@waysnx/ui-core" && p.used)).toBe(true);
     expect(report.components.some((c) => c.component === "Button" && c.jsxUsages > 0)).toBe(true);
 
-    // M4 not pulled forward — replacement candidates remain empty.
-    expect(report.replacementCandidates).toHaveLength(0);
+    // M4 replacement candidates are inferences (may be present); each carries evidence.
+    for (const c of report.replacementCandidates) {
+      expect(c.evidence).toBeDefined();
+    }
   });
 
   it("exposes the normalized intermediate model for parsed files", async () => {
