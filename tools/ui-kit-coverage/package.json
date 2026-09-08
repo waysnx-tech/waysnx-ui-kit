@@ -1,0 +1,53 @@
+{
+  "name": "@waysnx/ui-kit-coverage",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deterministic, read-only analyzer that reports how much of a React/TypeScript application uses the WaysNX UI Kit — adoption, utilization, native/custom UI, and replacement candidates. No AI, no network.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "WaysNX Technologies",
+  "keywords": [
+    "waysnx",
+    "ui-kit",
+    "coverage",
+    "adoption",
+    "static-analysis",
+    "ast",
+    "react",
+    "cli"
+  ],
+  "bin": {
+    "ui-kit-coverage": "dist/cli/index.js"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.4.0",
+    "tsup": "^8.5.1",
+    "vitest": "^3.2.4"
+  },
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "analyze": "node dist/cli/index.js analyze"
+  }
+}

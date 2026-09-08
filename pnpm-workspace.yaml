@@ -3,3 +3,4 @@ packages:
   - "storybook"
   - "playwright"
   - "examples/waysnx-admin-demo"
+  - "tools/*"
