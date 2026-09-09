@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * ui-kit-coverage CLI (approval doc §7) — Milestone 1.
+ * ui-kit-coverage CLI.
  *
- *   ui-kit-coverage analyze <path> [options]
+ *   ui-kit-coverage analyze <path> [options]            # writes coverage.json
+ *   ui-kit-coverage report  <path> [--format ...] [...] # M5: JSON and/or Markdown
  *
- * M1 implements only the `analyze` command and writes a JSON report. Later
- * milestones add adoption analysis, a Markdown report, and (M6) a `check`
- * command; those are intentionally not present yet.
+ * `analyze` is unchanged (JSON only) for backward compatibility. `report` adds
+ * the M5 Markdown output. No network, no GitHub integration, no AI, no WDG.
  */
 
 import { parseArgs } from "node:util";
@@ -14,19 +14,22 @@ import * as path from "node:path";
 import { analyze } from "../analyze.js";
 import { resolveConfig } from "./config.js";
 import { writeJsonReport } from "../reports/json/index.js";
-import type { CliOptions } from "../types/index.js";
+import { writeMarkdownReport } from "../reports/markdown/index.js";
+import type { CliOptions, OutputFormat } from "../types/index.js";
 
 const EXIT_OK = 0;
 const EXIT_USAGE = 1;
 const EXIT_ERROR = 2;
 
-const USAGE = `ui-kit-coverage — WaysNX UI Kit adoption analyzer (v0.1, Milestone 1)
+const USAGE = `ui-kit-coverage — WaysNX UI Kit adoption analyzer (v0.1)
 
 Usage:
   ui-kit-coverage analyze <path> [options]
+  ui-kit-coverage report  <path> [options] [--format json|markdown|all]
 
 Options:
   --output <directory>   Output directory (default: <path>/ui-kit-coverage)
+  --format <fmt>         report only: json | markdown | all (default: all)
   --include <glob>       Include glob (repeatable)
   --exclude <glob>       Exclude glob (repeatable)
   --config <path>        Path to a config file (overrides auto-discovery)
@@ -36,9 +39,13 @@ Options:
 Notes:
   - Read-only: never modifies the target project.
   - No network, no GitHub integration, no AI, no WDG.
-  - M1 is the scanner foundation: it discovers and parses source and writes a
-    real coverage.json. UI Kit adoption analysis arrives in later milestones.
+  - 'analyze' writes coverage.json. 'report' additionally renders a
+    deterministic coverage.md from the same model.
 `;
+
+function isFormat(v: string | undefined): v is OutputFormat {
+  return v === "json" || v === "markdown" || v === "all";
+}
 
 async function runAnalyze(argv: string[]): Promise<number> {
   const { values, positionals } = parseArgs({
@@ -94,6 +101,70 @@ async function runAnalyze(argv: string[]): Promise<number> {
   return EXIT_OK;
 }
 
+async function runReport(argv: string[]): Promise<number> {
+  const { values, positionals } = parseArgs({
+    args: argv,
+    allowPositionals: true,
+    options: {
+      output: { type: "string" },
+      format: { type: "string" },
+      include: { type: "string", multiple: true },
+      exclude: { type: "string", multiple: true },
+      config: { type: "string" },
+      verbose: { type: "boolean", default: false },
+      help: { type: "boolean", short: "h", default: false },
+    },
+  });
+
+  if (values.help) {
+    process.stdout.write(USAGE);
+    return EXIT_OK;
+  }
+
+  const targetArg = positionals[0];
+  if (!targetArg) {
+    process.stderr.write("error: missing <path> argument\n\n" + USAGE);
+    return EXIT_USAGE;
+  }
+
+  if (values.format !== undefined && !isFormat(values.format)) {
+    process.stderr.write(`error: invalid --format '${values.format}' (expected json|markdown|all)\n`);
+    return EXIT_USAGE;
+  }
+  const format: OutputFormat = isFormat(values.format) ? values.format : "all";
+
+  const projectRoot = path.resolve(targetArg);
+  const cli: CliOptions = {
+    output: values.output,
+    include: values.include,
+    exclude: values.exclude,
+    config: values.config,
+    verbose: values.verbose,
+  };
+
+  const config = await resolveConfig(projectRoot, cli);
+  const { report } = await analyze(config);
+
+  const wrote: string[] = [];
+  if (format === "json" || format === "all") {
+    wrote.push(await writeJsonReport(config.output, report));
+  }
+  if (format === "markdown" || format === "all") {
+    // No timestamp injected → deterministic output.
+    wrote.push(await writeMarkdownReport(config.output, report));
+  }
+
+  process.stdout.write(
+    `ui-kit-coverage: reported ${report.project.name} — ` +
+      `${report.summary.waysnxPackagesDetected} UI Kit package(s), ` +
+      `${report.summary.uiKitComponentsDetected} component(s), ` +
+      `${report.replacementCandidates.length} candidate(s).\n`,
+  );
+  for (const w of wrote) process.stdout.write(`  wrote ${w}\n`);
+
+  return EXIT_OK;
+}
+
 async function main(): Promise<number> {
   const argv = process.argv.slice(2);
   const command = argv[0];
@@ -101,6 +172,8 @@ async function main(): Promise<number> {
   switch (command) {
     case "analyze":
       return runAnalyze(argv.slice(1));
+    case "report":
+      return runReport(argv.slice(1));
     case undefined:
       process.stdout.write(USAGE);
       return EXIT_USAGE;

@@ -3,12 +3,12 @@
 A deterministic, **read-only** analyzer that will report how much of a React +
 TypeScript/JavaScript application uses the **WaysNX UI Kit**.
 
-> **Status: v0.1 — Milestone 1 (Scanner Foundation) only.**
-> This milestone establishes the foundation: project discovery, source parsing
-> into a normalized intermediate model, the CLI, and the initial `coverage.json`
-> shape. **It does not yet provide UI Kit coverage analysis** — adoption,
-> native/custom UI, replacement candidates, the Markdown report, and the GitHub
-> component-request flow are deferred to later milestones.
+> **Status: v0.1 — Milestones 1–5 complete.**
+> The analyzer discovers and parses source into a normalized model and reports
+> UI Kit **adoption** (M2), **native & custom UI** (M3), catalog-backed
+> **replacement candidates** (M4), and a deterministic **Markdown report** (M5).
+> It is read-only, offline, deterministic, and has no WDG/AI/GitHub runtime
+> dependency. CI enforcement (`check`) is a later milestone (M6).
 
 ## What the analyzer is
 
@@ -47,6 +47,27 @@ In v0.1 (unpublished), run the built CLI directly — the same `analyze` command
 ```bash
 node tools/ui-kit-coverage/dist/cli/index.js analyze ./my-react-app
 ```
+
+### Reports (`report`)
+
+`analyze` writes `coverage.json`. The `report` command writes a deterministic,
+human-readable `coverage.md` (and/or JSON) from the same analysis model — it adds
+no new analysis:
+
+```bash
+ui-kit-coverage report ./my-react-app --format all       # coverage.json + coverage.md
+ui-kit-coverage report ./my-react-app --format markdown   # coverage.md only
+```
+
+| `--format` | Output |
+|---|---|
+| `json` | `coverage.json` |
+| `markdown` | `coverage.md` |
+| `all` (default) | both |
+
+The Markdown report keeps observed facts, catalog facts, and inferred
+replacement candidates as distinct sections, preserves the partial-catalog
+disclaimer, and is byte-deterministic (no timestamp is written by default).
 
 ### Options (M1)
 
@@ -145,15 +166,17 @@ const config = await resolveConfig("/abs/path/to/app", {});
 const { report, normalized } = await analyze(config);
 ```
 
-## Current limitations (v0.1 / M1)
+## Current limitations (v0.1)
 
-- **No UI Kit coverage analysis yet.** Adoption, native/custom UI, replacement
-  candidates, confidence scoring, the Markdown report, and the GitHub
-  component-request flow are all deferred to later milestones.
-- **No catalog**, **no GitHub integration**, **no CI policy enforcement**,
-  **no AI**, **no WDG** in M1.
+- **The catalog is intentionally partial.** Replacement candidates are produced
+  only where the catalog supports a mapping; absence of a candidate never means
+  the UI Kit has no equivalent. Replacement candidates are inferences (each with
+  confidence + evidence), not observed facts.
+- **No GitHub integration**, **no CI enforcement (`check`)**, **no AI**, **no WDG
+  runtime dependency**, **no source modification/migration** — these are out of
+  scope for v0.1 / M5.
 - Static analysis cannot resolve dynamically-constructed component names; such
-  cases will be surfaced as `limitations` rather than guessed.
+  cases are surfaced as `limitations` rather than guessed.
 - **React + TS/JS only** (`.ts`, `.tsx`, `.js`, `.jsx`).
 
 ## License

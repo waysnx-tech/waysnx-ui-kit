@@ -16,4 +16,5 @@ export { buildReplacementCandidates } from "./analyzers/replacement/index.js";
 export { loadCatalog, defaultCatalogPath, type Catalog, type CatalogComponent } from "./catalog/index.js";
 export { toBasePackage } from "./parser/index.js";
 export { renderJson, writeJsonReport } from "./reports/json/index.js";
+export { renderMarkdown, writeMarkdownReport, type MarkdownOptions } from "./reports/markdown/index.js";
 export * from "./types/index.js";

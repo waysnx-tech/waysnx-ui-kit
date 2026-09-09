@@ -280,7 +280,7 @@ export interface CoverageReport {
 // Config + runtime types (approval doc §7/§8)
 // ---------------------------------------------------------------------------
 
-export type OutputFormat = "json";
+export type OutputFormat = "json" | "markdown" | "all";
 
 /** Effective, fully-resolved configuration used by a run. */
 export interface ResolvedConfig {
