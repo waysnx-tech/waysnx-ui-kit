@@ -17,4 +17,5 @@ export { loadCatalog, defaultCatalogPath, type Catalog, type CatalogComponent } 
 export { toBasePackage } from "./parser/index.js";
 export { renderJson, writeJsonReport } from "./reports/json/index.js";
 export { renderMarkdown, writeMarkdownReport, type MarkdownOptions } from "./reports/markdown/index.js";
+export { evaluatePolicy, type PolicyResult, type PolicyViolation } from "./policy/index.js";
 export * from "./types/index.js";

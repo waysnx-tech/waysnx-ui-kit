@@ -3,12 +3,12 @@
 A deterministic, **read-only** analyzer that will report how much of a React +
 TypeScript/JavaScript application uses the **WaysNX UI Kit**.
 
-> **Status: v0.1 — Milestones 1–5 complete.**
+> **Status: v0.1 — feature-complete (Milestones 1–6).**
 > The analyzer discovers and parses source into a normalized model and reports
 > UI Kit **adoption** (M2), **native & custom UI** (M3), catalog-backed
-> **replacement candidates** (M4), and a deterministic **Markdown report** (M5).
-> It is read-only, offline, deterministic, and has no WDG/AI/GitHub runtime
-> dependency. CI enforcement (`check`) is a later milestone (M6).
+> **replacement candidates** (M4), a deterministic **Markdown report** (M5), and
+> an opt-in **`check`** command for CI (M6). It is read-only, offline,
+> deterministic, and has no WDG/AI/GitHub runtime dependency.
 
 ## What the analyzer is
 
@@ -68,6 +68,40 @@ ui-kit-coverage report ./my-react-app --format markdown   # coverage.md only
 The Markdown report keeps observed facts, catalog facts, and inferred
 replacement candidates as distinct sections, preserves the partial-catalog
 disclaimer, and is byte-deterministic (no timestamp is written by default).
+
+### CI checks (`check`)
+
+`check` runs the analysis and applies **opt-in** policy thresholds, returning a
+CI exit code. With **no** thresholds configured it reports and passes (exit 0) —
+enforcement is never implicit.
+
+```bash
+ui-kit-coverage check ./my-react-app --min-packages 3 --max-native 200
+```
+
+| Flag | Fails when | Kind |
+|---|---|---|
+| `--min-packages <n>` | fewer than n UI Kit packages used | observed fact |
+| `--min-components <n>` | fewer than n UI Kit components used | observed fact |
+| `--min-usages <n>` | fewer than n UI Kit JSX usages | observed fact |
+| `--max-native <n>` | more than n native elements detected | observed fact |
+| `--max-high-candidates <n>` | HIGH-confidence candidates exceed n | catalog-limited |
+
+**Exit codes:** `0` pass · `1` usage error · `2` runtime error · `3` policy
+failure.
+
+Thresholds may also be set via a config `policy` block (CLI flags override).
+`--max-high-candidates` is **catalog-limited** — it reflects only catalog-backed
+candidates, and the catalog is intentionally partial; prefer the observed-fact
+thresholds as primary gates.
+
+**Recommended CI usage:** run `check` as a step in your pipeline and let the exit
+code gate the job, e.g.:
+
+```yaml
+# example CI step (adapt to your CI system)
+- run: ui-kit-coverage check ./app --min-packages 3
+```
 
 ### Options (M1)
 

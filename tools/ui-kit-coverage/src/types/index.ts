@@ -277,6 +277,32 @@ export interface CoverageReport {
 }
 
 // ---------------------------------------------------------------------------
+// M6 — CI policy thresholds (opt-in; used by the `check` command)
+// ---------------------------------------------------------------------------
+
+/**
+ * Optional CI policy thresholds. All fields are opt-in: when none are set,
+ * `check` reports but never fails. `analyze`/`report` never enforce policy.
+ *
+ * Observed-fact thresholds (min*) are catalog-independent and are the
+ * recommended primary gates. The candidate-based threshold
+ * (maxHighConfidenceCandidates) reflects only CATALOG-BACKED candidates and is
+ * off unless explicitly set — the catalog is intentionally partial.
+ */
+export interface PolicyConfig {
+  /** Fail if fewer than N UI Kit packages are used (observed fact). */
+  minUiKitPackagesUsed?: number;
+  /** Fail if fewer than N UI Kit components are used (observed fact). */
+  minComponentsUsed?: number;
+  /** Fail if total UI Kit JSX usages is below N (observed fact). */
+  minUiKitUsages?: number;
+  /** Fail if more than N native elements are detected (observed fact). */
+  maxNativeElements?: number;
+  /** Fail if HIGH-confidence replacement candidates exceed N (catalog-limited inference). */
+  maxHighConfidenceCandidates?: number;
+}
+
+// ---------------------------------------------------------------------------
 // Config + runtime types (approval doc §7/§8)
 // ---------------------------------------------------------------------------
 
@@ -294,6 +320,8 @@ export interface ResolvedConfig {
   verbose: boolean;
   /** Optional path to a custom capability catalog (M4). */
   catalog?: string;
+  /** Optional CI policy thresholds (used by `check`, M6). */
+  policy?: PolicyConfig;
 }
 
 /** The subset of config that can appear in ui-kit-coverage.config.json. */
@@ -303,6 +331,8 @@ export interface FileConfig {
   output?: string;
   /** Optional path to a custom capability catalog (M4). */
   catalog?: string;
+  /** Optional CI policy thresholds (used by `check`, M6). */
+  policy?: PolicyConfig;
 }
 
 /** Raw CLI options after parsing, before merge/resolution. */
@@ -313,4 +343,6 @@ export interface CliOptions {
   exclude?: string[];
   config?: string;
   verbose?: boolean;
+  /** Policy thresholds supplied via CLI flags (used by `check`). */
+  policy?: PolicyConfig;
 }
